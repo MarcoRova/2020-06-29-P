@@ -8,6 +8,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.PremierLeague.model.ConnMax;
+import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,13 +42,13 @@ public class FXMLController {
     private TextField txtMinuti; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbMese"
-    private ComboBox<?> cmbMese; // Value injected by FXMLLoader
+    private ComboBox<String> cmbMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM1"
-    private ComboBox<?> cmbM1; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM2"
-    private ComboBox<?> cmbM2; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -53,11 +56,59 @@ public class FXMLController {
     @FXML
     void doConnessioneMassima(ActionEvent event) {
     	
+    	
+    	this.txtResult.clear();
+    	
+    	if(this.model.getGrafo() == null) {
+    		this.txtResult.appendText("Crea prima il grafo!");
+    		return;
+    	}
+    	
+    	List<ConnMax> result = this.model.getConnessioneMassima();
+    	
+    	if(result.size()>0) {
+    		this.txtResult.appendText("Coppie con connessione massima: \n");
+    		for(ConnMax c : result) {
+    			
+    			this.txtResult.appendText("\n"+c);
+    		}
+    	}
+    	
+    	
+    	
+    	
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	
+    	this.txtResult.clear();
+    	
+    	Integer min = 0;
+    	try {
+    	    min = Integer.parseInt(this.txtMinuti.getText().strip());
+    	} catch (NumberFormatException e) {
+    	    txtResult.setText("Inserisci un valore numerico per i minuti.");
+    	    return;
+    	}
+    	if (min <= 0) { 
+    	    txtResult.setText("Inserisci un numero positivo.");
+    	    return;
+    	}
+    	
+    	String mese = this.cmbMese.getValue();
+    	
+    	if(mese == null) {
+    		this.txtResult.appendText("Inserisci un mese per continuare.");
+    		return;
+    	}
+    	
+    	this.model.creaGrafo(mese, min);
+    	
+    	this.txtResult.appendText(this.model.infoGrafo());
+    	
+    	this.btnCollegamento.setDisable(false);
+    	this.btnConnessioneMassima.setDisable(false);
     }
 
     @FXML
@@ -79,7 +130,9 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
-  
+    	this.btnCollegamento.setDisable(true);
+    	this.btnConnessioneMassima.setDisable(true);
+    	this.cmbMese.getItems().addAll("January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
     }
     
     
